@@ -30,7 +30,12 @@ func (b *Battlefield) Display() {
 	for x := 0; x < Size; x++ {
 		fmt.Printf("%2d | ", x)
 		for y := 0; y < Size; y++ {
-			fmt.Printf("%d ", b.Grid[x][y])
+			gridValue := b.Grid[x][y]
+			if gridValue == 9 {
+				fmt.Print("x ")
+			} else {
+				fmt.Printf("%d ", gridValue)
+			}
 		}
 		fmt.Println("|")
 	}

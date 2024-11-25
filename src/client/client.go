@@ -1,7 +1,6 @@
 package client
 
 import (
-	"bufio"
 	"fmt"
 	"net"
 	"time"
@@ -19,30 +18,23 @@ func NewClient(ip string, port int) *Client {
 	}
 }
 
-func (c *Client) ConnectToServer() error {
+func (c *Client) Connect() (net.Conn, error) {
 	serverAddr := fmt.Sprintf("%s:%d", c.ip, c.port)
 
 	timeout := 10 * time.Second
 	conn, err := net.DialTimeout("tcp", serverAddr, timeout)
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("falha ao conectar ao servidor: %s", err)
 	}
-	defer conn.Close()
-
-	fmt.Println("Cliente conectado ao servidor:", serverAddr)
-	return nil
+	fmt.Println("Conexão estabelecida com:", conn.RemoteAddr())
+	return conn, nil
 }
 
-func (c *Client) sendMessage(conn net.Conn, message string) {
-	_, err := conn.Write([]byte(message + "\n"))
+func (c *Client) SendMessage(conn net.Conn, message string) error {
+	_, err := conn.Write([]byte(message))
 	if err != nil {
-		fmt.Println("Failed to send message:", err)
-		return
+		return fmt.Errorf("falha ao enviar mensagem: %s", err)
 	}
-	response, err := bufio.NewReader(conn).ReadString('\n')
-	if err != nil {
-		fmt.Println("Failed to receive response:", err)
-		return
-	}
-	fmt.Println("Response received:", response)
+
+	return nil
 }
