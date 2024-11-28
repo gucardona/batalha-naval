@@ -159,8 +159,8 @@ func PrintBattlefields() {
 	fmt.Println()
 	B.Display()
 	fmt.Println()
-	fmt.Println("Campo de batalha do adversário:")
-	fmt.Println()
-	OB.Display()
-	fmt.Println()
+	//fmt.Println("Campo de batalha do adversário:")
+	//fmt.Println()
+	//OB.Display()
+	//fmt.Println()
 }
