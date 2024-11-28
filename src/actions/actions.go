@@ -52,7 +52,7 @@ func HandleShot(message []byte) {
 				if isDestroyed(ship) {
 					fmt.Printf("O navio %s foi destruído!\n", ship.Name)
 				}
-				fmt.Println(&ship)
+				fmt.Println(*ship)
 				generatedJson, _ := common.GenerateJSON(common.ShipList)
 				_ = common.WriteJSONToFile(generatedJson)
 			}
@@ -84,18 +84,18 @@ func isDestroyed(ship *ships.Ship) bool {
 }
 
 func isHit(ship *ships.Ship, x int, y int) bool {
-	for _, coord := range ship.Coordinates {
-		if coord.X == x && coord.Y == y {
-			coord.X = -x
-			if coord.X == 0 {
-				coord.X = -9090
+	for i := range ship.Coordinates {
+		if ship.Coordinates[i].X == x && ship.Coordinates[i].Y == y {
+			ship.Coordinates[i].X = -x
+			if ship.Coordinates[i].X == 0 {
+				ship.Coordinates[i].X = -9090
 			}
-			coord.Y = -y
-			if coord.Y == 0 {
-				coord.Y = -9090
+			ship.Coordinates[i].Y = -y
+			if ship.Coordinates[i].Y == 0 {
+				ship.Coordinates[i].Y = -9090
 			}
-			fmt.Println(coord.X)
-			fmt.Println(coord.Y)
+			fmt.Println(ship.Coordinates[i].X)
+			fmt.Println(ship.Coordinates[i].Y)
 			return true
 		}
 	}

@@ -7,7 +7,8 @@ import (
 )
 
 var (
-	ShipList []*ships.Ship
+	ShipList         []*ships.Ship
+	OpponentShipList []*ships.Ship
 
 	JsonShips         = make([]*ShipJSON, 0)
 	OpponentJsonShips = make([]*ShipJSON, 0)
