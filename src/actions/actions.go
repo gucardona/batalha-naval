@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"awesomeProject/src/battlefield"
 	"awesomeProject/src/common"
 	"awesomeProject/src/ships"
 	"bufio"
@@ -11,23 +12,58 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 )
 
 func Shoot(conn net.Conn, reader *bufio.Reader) {
-	fmt.Println("Envie a coordenada do seu tiro no formato 'linha coluna' (ex: 11).")
-	chosenTargetCoord, _ := reader.ReadString('\n')
-	chosenTargetCoord = strings.TrimSpace(chosenTargetCoord)
-	validCoordRegex := regexp.MustCompile(`^\d{2}$`)
+	var chosenTargetCoord string
 
-	if !validCoordRegex.MatchString(chosenTargetCoord) {
-		common.ClearScreen()
-		fmt.Println("Coordenada inválida. Por favor, tente novamente.")
+	for {
+		fmt.Println("Envie a coordenada do seu tiro no formato 'linha coluna' (ex: 11).")
+		chosenTargetCoord, _ = reader.ReadString('\n')
+		chosenTargetCoord = strings.TrimSpace(chosenTargetCoord)
+		validCoordRegex := regexp.MustCompile(`^\d{2}$`)
+
+		if !validCoordRegex.MatchString(chosenTargetCoord) {
+			common.ClearScreen()
+			fmt.Println("Coordenada inválida. Por favor, tente novamente.")
+			continue
+		}
+
+		break
 	}
 
 	if _, err := conn.Write([]byte(chosenTargetCoord)); err != nil {
 		common.ClearScreen()
 		fmt.Println("Erro ao enviar mensagem:", err)
 		fmt.Println("Por favor, tente novamente.")
+	}
+
+	x := int(chosenTargetCoord[0] - '0')
+	y := int(chosenTargetCoord[1] - '0')
+
+	common.ClearScreen()
+
+	if common.OB.Grid[x][y] == 1 {
+		common.OB.Grid[x][y] = 9
+		common.PrintBattlefields()
+		fmt.Printf("Você atingiu um navio em: [%d, %d]\n", x, y)
+		for _, ship := range common.OpponentShipList {
+			if isHit(ship, x, y) {
+				if isDestroyed(common.OB, ship) {
+					fmt.Printf("O navio inimigo %s foi destruído!\n", ship.Name)
+					if victory := CheckVictory(); victory {
+						fmt.Println("Jogo finalizado!\nVitória!")
+						time.Sleep(2 * time.Second)
+						os.Exit(0)
+					}
+				}
+				common.SaveOpponentShips()
+			}
+		}
+	} else {
+		fmt.Printf("Você atingiu em água: [%d, %d]\n", x, y)
+		common.PrintBattlefields()
 	}
 }
 
@@ -49,12 +85,10 @@ func HandleShot(message []byte) {
 		common.B.Grid[x][y] = 9
 		for _, ship := range common.ShipList {
 			if isHit(ship, x, y) {
-				if isDestroyed(ship) {
+				if isDestroyed(common.B, ship) {
 					fmt.Printf("O navio %s foi destruído!\n", ship.Name)
 				}
-				fmt.Println(*ship)
-				generatedJson, _ := common.GenerateJSON(common.ShipList)
-				_ = common.WriteJSONToFile(generatedJson)
+				common.SaveMyShips()
 			}
 		}
 	} else {
@@ -64,18 +98,43 @@ func HandleShot(message []byte) {
 	common.IsMyTurn = true
 }
 
-func CheckGameOver(list []*ships.Ship) bool {
-	for _, ship := range list {
-		if !isDestroyed(ship) {
+func CheckDefeat() bool {
+	for _, ship := range common.ShipList {
+		if !isDestroyed(common.B, ship) {
 			return false
 		}
 	}
 	return true
 }
 
-func isDestroyed(ship *ships.Ship) bool {
+func CheckVictory() bool {
+	for _, opShips := range common.OpponentShipList {
+		if !isDestroyed(common.OB, opShips) {
+			return false
+		}
+	}
+	return true
+}
+
+func isDestroyed(battlefield *battlefield.Battlefield, ship *ships.Ship) bool {
 	for _, coord := range ship.Coordinates {
-		if common.B.Grid[coord.X][coord.Y] != 9 {
+		if coord.X < 0 {
+			if coord.X == -9090 {
+				coord.X = 0
+			} else {
+				coord.X = -coord.X
+			}
+		}
+
+		if coord.Y < 0 {
+			if coord.Y == -9090 {
+				coord.Y = 0
+			} else {
+				coord.Y = -coord.Y
+			}
+		}
+
+		if battlefield.Grid[coord.X][coord.Y] != 9 {
 			return false
 		}
 	}
@@ -94,8 +153,6 @@ func isHit(ship *ships.Ship, x int, y int) bool {
 			if ship.Coordinates[i].Y == 0 {
 				ship.Coordinates[i].Y = -9090
 			}
-			fmt.Println(ship.Coordinates[i].X)
-			fmt.Println(ship.Coordinates[i].Y)
 			return true
 		}
 	}
@@ -119,12 +176,12 @@ func HandleMessage(conn net.Conn) {
 			HandleShot(common.Buffer[:n])
 		}
 	} else {
-		opponentShips, err := common.ConvertJsonToShip(common.OpponentJsonShips)
+		common.OpponentShipList, err = common.ConvertJsonToShip(common.OpponentJsonShips)
 		if err != nil {
 			fmt.Println("Erro ao converter JSON de navios do oponente:", err)
 		}
 
-		for _, ship := range opponentShips {
+		for _, ship := range common.OpponentShipList {
 			if err = common.OB.PlaceShip(ship); err != nil {
 				fmt.Println("Erro ao colocar navio no campo de batalha do oponente:", err)
 			}
@@ -152,12 +209,12 @@ func ReceiveOpponentShips() {
 		return
 	}
 
-	opponentShips, err := common.ConvertJsonToShip(common.OpponentJsonShips)
+	common.OpponentShipList, err = common.ConvertJsonToShip(common.OpponentJsonShips)
 	if err != nil {
 		fmt.Println("Erro ao converter JSON de navios do oponente:", err)
 	}
 
-	for _, ship := range opponentShips {
+	for _, ship := range common.OpponentShipList {
 		if err = common.OB.PlaceShip(ship); err != nil {
 			fmt.Println("Erro ao colocar navio no campo de batalha do oponente:", err)
 		}

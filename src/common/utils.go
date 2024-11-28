@@ -153,3 +153,14 @@ func ShowIntro() {
 	fmt.Println(" |___|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|___| ")
 	fmt.Println("(_____)                                                                                  (_____)")
 }
+
+func PrintBattlefields() {
+	fmt.Println("Seu campo de batalha:")
+	fmt.Println()
+	B.Display()
+	fmt.Println()
+	fmt.Println("Campo de batalha do adversário:")
+	fmt.Println()
+	OB.Display()
+	fmt.Println()
+}

@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 )
 
 func main() {
@@ -54,9 +55,22 @@ func main() {
 					fmt.Printf("falha ao fazer Unmarshal do json: %s\nPor favor, insira novamente os navios...", err)
 					break
 				}
+
+				opFile, err := os.ReadFile("op-ships.json")
+				if err != nil {
+					common.ClearScreen()
+					fmt.Printf("falha ao ler arquivo: %s\nPor favor, insira novamente os navios...", err)
+					break
+				}
+
+				if err = json.Unmarshal(opFile, &common.JsonShips); err != nil {
+					common.ClearScreen()
+					fmt.Printf("falha ao fazer Unmarshal do json: %s\nPor favor, insira novamente os navios...", err)
+					break
+				}
 			}
 		}
-		common.ClearScreen()
+
 		break
 	}
 
@@ -83,6 +97,7 @@ func main() {
 	} else {
 		var err error
 		common.ShipList, err = common.ConvertJsonToShip(common.JsonShips)
+		fmt.Println("Navios:", common.ShipList)
 		if err != nil {
 			fmt.Println("Erro ao converter JSON para navios:", err)
 		}
@@ -92,8 +107,6 @@ func main() {
 			}
 		}
 	}
-	jsonShip, _ := common.GenerateJSON(common.ShipList)
-	_ = common.WriteJSONToFile(jsonShip)
 
 	if common.Conn == nil {
 		for {
@@ -122,6 +135,7 @@ func main() {
 			}
 		}
 	}
+	common.SaveMyShips()
 
 	if !common.IsServer {
 		common.IsMyTurn = false
@@ -129,19 +143,15 @@ func main() {
 	}
 
 	for {
-		fmt.Println("Seu campo de batalha:")
-		fmt.Println()
-		common.B.Display()
-		fmt.Println()
-		fmt.Println("Campo de batalha do adversário:")
-		fmt.Println()
-		common.OB.Display()
-		fmt.Println()
+		common.PrintBattlefields()
 
-		if defeat := actions.CheckGameOver(common.ShipList); defeat {
-			fmt.Println("Jogo finalizado!\nDerrota...")
-			break
-		}
+		go func() {
+			if defeat := actions.CheckDefeat(); defeat {
+				fmt.Println("Jogo finalizado!\nDerrota...")
+				time.Sleep(2 * time.Second)
+				os.Exit(0)
+			}
+		}()
 
 		if common.IsMyTurn {
 			actions.Shoot(common.Conn, reader)
@@ -149,9 +159,7 @@ func main() {
 		}
 
 		fmt.Println("Aguardando oponente...")
+
 		actions.HandleMessage(common.Conn)
 	}
 }
-
-//TODO: ADD LOGIC TO IDENTIFY THE WINNER
-//TODO: ADD LOGIC TO SAVE OPPONENT GAME

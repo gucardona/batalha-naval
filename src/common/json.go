@@ -37,8 +37,7 @@ func GenerateJSON(ships []*ships.Ship) (string, error) {
 	return string(jsonData), nil
 }
 
-func WriteJSONToFile(data string) error {
-	fileName := "ships.json"
+func WriteJSONToFile(fileName, data string) error {
 	file, err := os.Create(fileName)
 	if err != nil {
 		return fmt.Errorf("failed to create file: %w", err)
@@ -89,4 +88,49 @@ func ConvertJsonToShip(jsonShips []*ShipJSON) ([]*ships.Ship, error) {
 	}
 
 	return shipList, nil
+}
+
+func SaveMyShips() {
+	if IsServer {
+		jsonShips, err := GenerateJSON(ShipList)
+		if err != nil {
+			fmt.Println("Erro ao converter navios para JSON:", err)
+		}
+		err = WriteJSONToFile(MyShipsFile, jsonShips)
+		if err != nil {
+			fmt.Println("Erro ao salvar navios em arquivo:", err)
+		}
+	} else {
+		jsonShips, err := GenerateJSON(ShipList)
+		if err != nil {
+			fmt.Println("Erro ao converter navios para JSON:", err)
+		}
+
+		err = WriteJSONToFile(MyShipsFile, jsonShips)
+		if err != nil {
+			fmt.Println("Erro ao salvar navios em arquivo:", err)
+		}
+	}
+}
+
+func SaveOpponentShips() {
+	if IsServer {
+		opponentJsonShips, err := GenerateJSON(OpponentShipList)
+		if err != nil {
+			fmt.Println("Erro ao converter navios do oponente para JSON:", err)
+		}
+		err = WriteJSONToFile(OpShipsFile, opponentJsonShips)
+		if err != nil {
+			fmt.Println("Erro ao salvar navios do oponente em arquivo:", err)
+		}
+	} else {
+		opponentJsonShips, err := GenerateJSON(OpponentShipList)
+		if err != nil {
+			fmt.Println("Erro ao converter navios do oponente para JSON:", err)
+		}
+		err = WriteJSONToFile(OpShipsFile, opponentJsonShips)
+		if err != nil {
+			fmt.Println("Erro ao salvar navios do oponente em arquivo:", err)
+		}
+	}
 }

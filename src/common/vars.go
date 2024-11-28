@@ -7,6 +7,9 @@ import (
 )
 
 var (
+	MyShipsFile = "my-ships.json"
+	OpShipsFile = "op-ships.json"
+
 	ShipList         []*ships.Ship
 	OpponentShipList []*ships.Ship
 

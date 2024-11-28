@@ -41,6 +41,7 @@ func ClientMode(reader *bufio.Reader) {
 	}
 
 	actions.ReceiveAndSendShips()
+	common.SaveOpponentShips()
 }
 
 func ServerMode(ip *string, port *int) {
@@ -63,4 +64,5 @@ func ServerMode(ip *string, port *int) {
 	}
 
 	actions.SendAndReceiveShips()
+	common.SaveOpponentShips()
 }
