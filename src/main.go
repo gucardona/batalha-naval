@@ -36,14 +36,14 @@ func main() {
 			break
 		}
 
-		_, err = os.Stat(fmt.Sprintf("%s/ships.json", rootDir))
+		_, err = os.Stat(fmt.Sprintf("%s/my-ships.json", rootDir))
 		if err == nil {
-			fmt.Println("Arquivo \"ships.json\" não deletado encontrado. Deseja ler navios do arquivo? (s/n)")
+			fmt.Println("Arquivo \"my-ships.json\" não deletado encontrado. Deseja ler navios do arquivo? (s/n)")
 			read, _ := reader.ReadString('\n')
 			read = strings.TrimSpace(read)
 
 			if read == "s" || read == "S" {
-				file, err := os.ReadFile("ships.json")
+				file, err := os.ReadFile("my-ships.json")
 				if err != nil {
 					common.ClearScreen()
 					fmt.Printf("falha ao ler arquivo: %s\nPor favor, insira novamente os navios...", err)
@@ -99,7 +99,6 @@ func main() {
 	} else {
 		var err error
 		common.ShipList, err = common.ConvertJsonToShip(common.JsonShips)
-		fmt.Println("Navios:", common.ShipList)
 		if err != nil {
 			fmt.Println("Erro ao converter JSON para navios:", err)
 		}
