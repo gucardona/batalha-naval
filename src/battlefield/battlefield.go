@@ -47,7 +47,7 @@ func (b *Battlefield) Display() {
 	fmt.Print("+")
 }
 
-func (b *Battlefield) PlaceShip(ship ships.Ship) error {
+func (b *Battlefield) PlaceShip(ship *ships.Ship) error {
 	for _, coord := range ship.Coordinates {
 		if coord.X >= Size || coord.Y >= Size {
 			return fmt.Errorf("coordenada %v fora da grade", coord)
@@ -59,6 +59,16 @@ func (b *Battlefield) PlaceShip(ship ships.Ship) error {
 	}
 
 	for _, coord := range ship.Coordinates {
+		if coord.X < 0 || coord.Y < 0 {
+			if -coord.X == -9090 && -coord.Y == -9090 {
+				b.Grid[0][0] = 9
+			}
+
+			if -coord.X >= Size || -coord.Y >= Size {
+				return fmt.Errorf("coordenada %v fora da grade", coord)
+			}
+			b.Grid[-coord.X][-coord.Y] = 9
+		}
 		b.Grid[coord.X][coord.Y] = 1
 	}
 

@@ -8,9 +8,9 @@ import (
 	"time"
 )
 
-func ManuallyPlaceShips(reader *bufio.Reader, b *battlefield.Battlefield) []ships.Ship {
+func ManuallyPlaceShips(reader *bufio.Reader, b *battlefield.Battlefield) []*ships.Ship {
 	shipMap := make(map[string]int)
-	var shipList []ships.Ship
+	var shipList []*ships.Ship
 
 	i := 6
 	for i > 0 {
@@ -45,11 +45,11 @@ func ManuallyPlaceShips(reader *bufio.Reader, b *battlefield.Battlefield) []ship
 	return shipList
 }
 
-func AutomaticallyPlaceShips(b *battlefield.Battlefield) []ships.Ship {
+func AutomaticallyPlaceShips(b *battlefield.Battlefield) []*ships.Ship {
 	source := rand.NewSource(time.Now().UnixNano())
 	random := rand.New(source)
 
-	var shipList []ships.Ship
+	var shipList []*ships.Ship
 
 	for _, shipType := range ships.ShipTypes {
 		for i := 0; i < shipType.Quatity; i++ {

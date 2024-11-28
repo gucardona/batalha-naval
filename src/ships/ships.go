@@ -13,8 +13,8 @@ type Coordinate struct {
 	Y int
 }
 
-func NewShip(shipType ShipType) Ship {
-	return Ship{
+func NewShip(shipType ShipType) *Ship {
+	return &Ship{
 		Name:     shipType.Name,
 		Size:     shipType.Size,
 		Quantity: shipType.Quatity,
@@ -39,22 +39,22 @@ func (s *Ship) AddCoordinates(x, y int, isHorizontal bool) error {
 	return nil
 }
 
-func NewPortaAvioes() Ship {
+func NewPortaAvioes() *Ship {
 	ship := NewShip(PortaAvioes)
 	return ship
 }
 
-func NewEncouracado() Ship {
+func NewEncouracado() *Ship {
 	ship := NewShip(Encouracado)
 	return ship
 }
 
-func NewCruzador() Ship {
+func NewCruzador() *Ship {
 	ship := NewShip(Cruzador)
 	return ship
 }
 
-func NewDestroier() Ship {
+func NewDestroier() *Ship {
 	ship := NewShip(Destroier)
 	return ship
 }

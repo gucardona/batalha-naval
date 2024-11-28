@@ -13,7 +13,7 @@ type ShipJSON struct {
 	Posicoes [][2]int `json:"posicoes"`
 }
 
-func GenerateJSON(ships []ships.Ship) (string, error) {
+func GenerateJSON(ships []*ships.Ship) (string, error) {
 	var jsonShips []ShipJSON
 
 	for _, ship := range ships {
@@ -53,11 +53,11 @@ func WriteJSONToFile(data string) error {
 	return nil
 }
 
-func ConvertJsonToShip(jsonShips []ShipJSON) ([]ships.Ship, error) {
-	var shipList []ships.Ship
+func ConvertJsonToShip(jsonShips []*ShipJSON) ([]*ships.Ship, error) {
+	var shipList []*ships.Ship
 
 	for _, jsonShip := range jsonShips {
-		var ship ships.Ship
+		var ship *ships.Ship
 
 		switch strings.ToLower(jsonShip.Tipo) {
 		case "porta-avioes":
@@ -82,7 +82,7 @@ func ConvertJsonToShip(jsonShips []ShipJSON) ([]ships.Ship, error) {
 				}
 			}
 
-			ship.Coordinates = append(ship.Coordinates, ships.Coordinate{X: coord[0], Y: coord[1]})
+			ship.Coordinates = append(ship.Coordinates, ships.Coordinate{X: coord[1], Y: coord[0]})
 		}
 
 		shipList = append(shipList, ship)
