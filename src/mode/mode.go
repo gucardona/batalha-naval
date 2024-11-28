@@ -40,8 +40,10 @@ func ClientMode(reader *bufio.Reader) {
 		break
 	}
 
-	actions.ReceiveAndSendShips()
-	common.SaveOpponentShips()
+	if !common.IsReconnection {
+		actions.ReceiveAndSendShips()
+		common.SaveOpponentShips()
+	}
 }
 
 func ServerMode(ip *string, port *int) {
@@ -63,6 +65,8 @@ func ServerMode(ip *string, port *int) {
 		}
 	}
 
-	actions.SendAndReceiveShips()
-	common.SaveOpponentShips()
+	if !common.IsReconnection {
+		actions.SendAndReceiveShips()
+		common.SaveOpponentShips()
+	}
 }

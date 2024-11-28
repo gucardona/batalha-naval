@@ -68,6 +68,8 @@ func main() {
 					fmt.Printf("falha ao fazer Unmarshal do json: %s\nPor favor, insira novamente os navios...", err)
 					break
 				}
+
+				common.IsReconnection = true
 			}
 		}
 

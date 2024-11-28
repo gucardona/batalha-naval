@@ -22,6 +22,7 @@ var (
 	Conn   net.Conn
 	Buffer = make([]byte, 8192)
 
-	IsMyTurn = true
-	IsServer = false
+	IsMyTurn       = true
+	IsServer       = false
+	IsReconnection = false
 )
